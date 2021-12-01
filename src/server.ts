@@ -22,7 +22,7 @@ app.use(cors());
 dotenv.config();
 
 // use the environment variable PORT, or 4000 as a fallback
-const PORT_NUMBER = process.env.PORT ?? 4000;
+const PORT_NUMBER = process.env.PORT ?? 5432;
 
 // API info page
 app.get("/", (req, res) => {
