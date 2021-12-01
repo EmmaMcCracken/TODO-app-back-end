@@ -85,9 +85,9 @@ app.get<{ id: string }>("/items/:id", async (req, res) => {
     [id]
   );
   if (matchingItem.rows.length === 1) {
-    res.status(200).json(matchingItem);
+    res.status(200).json(matchingItem.rows);
   } else {
-    res.status(404).json(matchingItem);
+    res.status(404).json(matchingItem.rows);
   }
 });
 
