@@ -4,14 +4,15 @@ import dotenv from "dotenv";
 import { DbItem } from "./db";
 import filePath from "./filePath";
 import { Client } from "pg";
-console.log(process.env.DATABASE_URL);
+dotenv.config();
 const config = {
   connectionString: process.env.DATABASE_URL,
-  ssl: false,
+  ssl: {
+    rejectUnauthorized: false,
+  },
 };
 
 const client = new Client(config);
-console.log(require("pg/package.json").version);
 const app = express();
 
 /** Parses JSON data in a request automatically */
