@@ -4,13 +4,14 @@ import dotenv from "dotenv";
 import { DbItem } from "./db";
 import filePath from "./filePath";
 import { Client } from "pg";
-
+console.log(process.env.DATABASE_URL);
 const config = {
   connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false },
+  ssl: false,
 };
-const client = new Client(config);
 
+const client = new Client(config);
+console.log(require("pg/package.json").version);
 const app = express();
 
 /** Parses JSON data in a request automatically */
@@ -20,9 +21,15 @@ app.use(cors());
 
 // read in contents of any environment variables in the .env file
 dotenv.config();
-
+client.connect((err) => {
+  if (err) {
+    console.error("connection error", err.stack);
+  } else {
+    console.log("connected");
+  }
+});
 // use the environment variable PORT, or 4000 as a fallback
-const PORT_NUMBER = process.env.PORT ?? 5432;
+const PORT_NUMBER = process.env.PORT ?? 4000;
 
 // API info page
 app.get("/", (req, res) => {
@@ -32,8 +39,11 @@ app.get("/", (req, res) => {
 
 // GET /items
 app.get("/items", async (req, res) => {
-  const dbResult = await client.query("select * from items");
+  console.log("fetching all items");
+  const dbResult = await client.query("select * from items limit 100");
+  console.log(dbResult, "dbResult");
   const allItems = dbResult.rows;
+  console.log("allItems", allItems);
   res.status(200).json(allItems);
 });
 
@@ -68,9 +78,10 @@ app.post<{}, {}, DbItem>("/items", async (req, res) => {
 
 // GET /items/:id
 app.get<{ id: string }>("/items/:id", async (req, res) => {
+  const id = parseInt(req.params.id);
   const matchingItem = await client.query(
     "select * from items where id = ($1)",
-    [req.params.id]
+    [id]
   );
   if (matchingItem.rows.length === 1) {
     res.status(200).json(matchingItem);
